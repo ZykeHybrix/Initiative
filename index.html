@@ -1,16 +1,16 @@
 <html>
 <div id="addCharacterFormDiv">
-	<input id="characterName" name="name" type="text" placeholder="character name"/>
-	<input id="characterInitiative" name="initiative" type="number" placeholder="initiative number"/>
-	<select id="characterType" name="type">
-		<option value="player">Player</option>
-		<option value="enemy">Enemy</option>
-	</select>
-	<button id="characterButton" onclick="addCharacter();">Add Character</button>
+    <input id="characterName" name="name" type="text" placeholder="character name"/>
+    <input id="characterInitiative" name="initiative" type="number" placeholder="initiative number"/>
+    <select id="characterType" name="type">
+        <option value="player">Player</option>
+        <option value="enemy">Enemy</option>
+    </select>
+    <button id="characterButton" onclick="addCharacter();">Add Character</button>
 </div>
 <div>
-	<button id="combatButton" onclick="toggleCombat();">Start Combat</button>
-	<button id="turnButton" onclick="advanceTurn();" style="display: none;">Advance Turn</button>
+    <button id="combatButton" onclick="toggleCombat();">Start Combat</button>
+    <button id="turnButton" onclick="advanceTurn();" style="display: none;">Advance Turn</button>
 </div>
 <div id="playerDiv"></div>
 <div style="clear: left;"><br /></div>
@@ -19,166 +19,199 @@
 <div id="combatDiv"><div>
 </html>
 <script>
-var playerList = [{name: 'me', initiative: 19}, {name: 'myself', initiative: 18}, {name: 'i', initiative: 21}];
-var enemyList = [{name: 'pirate', initiative: 17}, {name: 'skeleton', initiative: 23}, {name: 'ogre', initiative: 10}];
-var combatList = [...playerList, ...enemyList];
-var combatToggle = 0;
-var currentTurn = 0;
+    var playerList = [{name: 'me', initiative: 19, type: 'player'}, {name: 'myself', initiative: 18, type: 'player'}, {name: 'i', initiative: 21, type: 'player'}, {name: 'pirate', initiative: 17, type: 'enemy'}, {name: 'skeleton', initiative: 23, type: 'enemy'}, {name: 'ogre', initiative: 10, type: 'enemy'}];
+    //var enemyList = [{name: 'pirate', initiative: 17, type: 'enemy'}, {name: 'skeleton', initiative: 23, type: 'enemy'}, {name: 'ogre', initiative: 10, type: 'enemy'}];
+    //var enemyList = [];
+    //var combatList = [...playerList, ...enemyList];
+    var combatList = playerList;
+    var combatToggle = 0;
+    var currentTurn = 0;
 
-var playerDiv = document.getElementById("playerDiv");
-var enemyDiv = document.getElementById("enemyDiv");
-var combatDiv = document.getElementById("combatDiv");
-var combatButton = document.getElementById("combatButton");
-var turnButton = document.getElementById("turnButton");
+    var playerDiv = document.getElementById("playerDiv");
+    var enemyDiv = document.getElementById("enemyDiv");
+    var combatDiv = document.getElementById("combatDiv");
+    var combatButton = document.getElementById("combatButton");
+    var turnButton = document.getElementById("turnButton");
 
 
-function displayLists() {
-	var playerContents = '';
-	this.playerList.forEach(function(object){
-		playerContents += "<div style='border-style: solid; height: 150px; width: 300px; float: left;'>";
-		playerContents += object.name + ' - ' + object.initiative;
-		playerContents += '<button onclick="removeCharacterFromList(' + "'player', '" + object.name + "'" + ');">X</button>';		
-		playerContents += "</div>";
-	});
-	
-	this.playerDiv.innerHTML = playerContents;
+    function displayLists() {
 
-	var enemyContents = '';
-	this.enemyList.forEach(function(object){
-		enemyContents += "<div style='border-style: solid; height: 150px; width: 300px; float: left;'>";
-		enemyContents += object.name + ' - ' + object.initiative;
-		enemyContents += '<button onclick="removeCharacterFromList(' + "'enemy', '" + object.name + "'" + ');">X</button>';		
-		enemyContents += "</div>";
-	});
-	
-	this.enemyDiv.innerHTML = enemyContents;
-};	
+        this.playerDiv.innerHTML = '';
+        this.enemyDiv.innerHTML = '';
 
-function displayCombatList() {
-	var combatContents = '';
-	this.combatList.sort((a, b) => (a.initiative < b.initiative) ? 1 : -1);
+        this.playerList.forEach(function(object, index){
 
-	this.combatList.forEach(function(object, index){
-		combatContents += "<div style='border-style: solid; height: 150px; width: 300px;'>";
-		combatContents += object.name + ' - ' + object.initiative;
-		combatContents += '<button onclick="removeCharacterFromList(' + "'combat', '" + object.name + "'" + ');">X</button>';
-		if (index == this.currentTurn) {
-			combatContents += "<- Current Turn";
-		}
-		combatContents += "</div>";
-	});
-	
-	this.combatDiv.innerHTML = combatContents;
-	
-	if (this.combatToggle == 0) {
-		this.combatDiv.style.display = 'none';
-	}
-	if (this.combatToggle == 1) {
-		this.combatDiv.style.display = '';
-	}
-};
+            var divElement = document.createElement("div");
+            divElement.style.borderStyle = 'solid';
+            divElement.style.height = '150px';
+            divElement.style.width = '300px';
+            divElement.style.float = 'left';
 
-function addCharacter() {
-	var characterNameInput = document.getElementById("characterName");
-	var characterNameValue = characterNameInput.value;
-	var characterInitiativeInput = document.getElementById("characterInitiative");
-	var characterInitiativeValue = characterInitiativeInput.value;
-	var characterTypeInput = document.getElementById("characterType");
-	var characterTypeValue = characterTypeInput.value;
-	var newObject = {};
-	newObject.name = characterNameValue;
-	newObject.initiative = characterInitiativeValue;
+            var buttonElement = document.createElement("button");
+            var buttonElementTextNode = document.createTextNode('X');
+            buttonElement.appendChild(buttonElementTextNode);
+            buttonElement.onclick = function() {removeCharacterFromList('player', index)};
+            divElement.append(buttonElement);
 
-	if (characterTypeValue == 'player') {
-		this.playerList.push(newObject);
-	}
-	if (characterTypeValue == 'enemy') {
-		this.enemyList.push(newObject);
-	}
-	
-	
-	this.combatList = [...this.playerList, ...this.enemyList];
-	displayLists();
-};
+            var divElementText = object.name + ' - ' + object.initiative;
+            var divElementTextNode = document.createTextNode(divElementText);
+            divElement.appendChild(divElementTextNode);
 
-function toggleCombat() {
-	this.combatList = [...playerList, ...enemyList];
-	
-	if (this.combatToggle == 0) {
-		this.combatToggle = 1;
-		this.turnButton.style.display = '';
-		this.combatButton.innerHTML = "Stop Combat";
-		this.playerDiv.style.display = 'none';
-		this.enemyDiv.style.display = 'none';
-	} else if (this.combatToggle == 1) {
-		this.combatToggle = 0;
-		this.currentTurn = 0;
-		this.turnButton.style.display = 'none';
-		this.combatButton.innerHTML = "Start Combat";
-		this.playerDiv.style.display = '';
-		this.enemyDiv.style.display = '';
-	}
-	displayCombatList();
-};
+            if (object.type == 'player') {
+                this.playerDiv.appendChild(divElement);
 
-function advanceTurn() {
-	if (this.combatList.length == this.currentTurn + 1) {
-		this.currentTurn = 0;
-	} else {
-		this.currentTurn++;
-	}
-	
-	displayCombatList();
-};
+            }
+            if (object.type == 'enemy') {
+                this.enemyDiv.appendChild(divElement);
 
-function removeCharacterFromList(listName, name) {
-	var objectToRemove = {};
-	this.combatList.forEach(function(object){
-		if (object.name == name) {
-			objectToRemove = object;
-		}
+            }
+        });
 
-	});
+        /*
+        this.enemyList.forEach(function(object, index){
+            var divElement = document.createElement("div");
+            divElement.style.borderStyle = 'solid';
+            divElement.style.height = '150px';
+            divElement.style.width = '300px';
+            divElement.style.float = 'left';
 
-	if (listName == 'combat') {
-		var idx = this.combatList.indexOf(objectToRemove);
-		if (idx !== -1) {
-			this.combatList.splice(idx, 1);
-		}
-		if(combatList.length < 1 || combatList == undefined){
-			toggleCombat();
-		}
-		displayCombatList();
-	}
-	if (listName == 'player') {
-		var idx = this.playerList.indexOf(objectToRemove);
-		if (idx !== -1) {
-			this.playerList.splice(idx, 1);
-		}
-		this.combatList = [...playerList, ...enemyList];
-		displayLists();
-	}
-	if (listName == 'enemy') {
-		var idx = this.enemyList.indexOf(objectToRemove);
-		if (idx !== -1) {
-			this.enemyList.splice(idx, 1);
-		}
-		this.combatList = [...playerList, ...enemyList];
-		displayLists();
-	}
+            var buttonElement = document.createElement("button");
+            var buttonElementTextNode = document.createTextNode('X');
+            buttonElement.appendChild(buttonElementTextNode);
+            buttonElement.onclick = function() {removeCharacterFromList('enemy', index)};
+            divElement.append(buttonElement);
 
-	//var characterTypeValue = type;
+            var divElementText = object.name + ' - ' + object.initiative;
+            var divElementTextNode = document.createTextNode(divElementText);
+            divElement.appendChild(divElementTextNode);
 
-	//if (characterTypeValue == 'player') {
-		//this.playerList.filter(function(el) { return el.name != name;}); 
-	//}
-	//if (characterTypeValue == 'enemy') {
-		//this.enemyList.filter(function(el) { return (el.name != name && el.initiative != object.initiative );}); 
-	//}
+            this.enemyDiv.appendChild(divElement);
 
-	displayLists();
-	
-};
+        });
+        */
 
-displayLists();
+    };
+
+    function displayCombatList() {
+
+        this.combatDiv.innerHTML = '';
+
+        this.combatList.sort((a, b) => (a.initiative < b.initiative) ? 1 : -1);
+
+        this.combatList.forEach(function(object, index){
+            var divElement = document.createElement("div");
+            divElement.style.borderStyle = 'solid';
+            divElement.style.height = '150px';
+            divElement.style.width = '300px';
+            //divElement.style.float = 'left';
+
+            var buttonElement = document.createElement("button");
+            var buttonElementTextNode = document.createTextNode('X');
+            buttonElement.appendChild(buttonElementTextNode);
+            buttonElement.onclick = function() {removeCharacterFromList('combat', index)};
+            divElement.append(buttonElement);
+
+            var divElementText = object.name + ' - ' + object.initiative;
+            if (index == this.currentTurn) {
+                divElementText += "<- Current Turn";
+            }
+            var divElementTextNode = document.createTextNode(divElementText);
+            divElement.appendChild(divElementTextNode);
+
+            this.combatDiv.appendChild(divElement);
+        });
+
+        if (this.combatToggle == 0) {
+            this.combatDiv.style.display = 'none';
+        }
+        if (this.combatToggle == 1) {
+            this.combatDiv.style.display = '';
+        }
+    };
+
+    function addCharacter() {
+        var characterNameInput = document.getElementById("characterName");
+        var characterNameValue = characterNameInput.value;
+        var characterInitiativeInput = document.getElementById("characterInitiative");
+        var characterInitiativeValue = characterInitiativeInput.value;
+        var characterTypeInput = document.getElementById("characterType");
+        var characterTypeValue = characterTypeInput.value;
+        var newObject = {};
+        newObject.name = characterNameValue;
+        newObject.initiative = characterInitiativeValue;
+        newObject.type = characterTypeValue;
+
+        if (characterTypeValue == 'player') {
+            this.playerList.push(newObject);
+        }
+        if (characterTypeValue == 'enemy') {
+            this.enemyList.push(newObject);
+        }
+
+        if (this.currentTurn != 0) {
+            var currentObject = this.combatList[this.currentTurn];
+            var currentObjectInitiative = currentObject.initiative;
+
+            if (characterInitiativeValue > currentObjectInitiative) {
+                this.currentTurn++;
+            }
+        }
+
+        this.combatList.push(newObject);
+        //this.combatList = [...this.playerList, ...this.enemyList];
+        displayLists();
+        displayCombatList();
+    };
+
+    function toggleCombat() {
+        //this.combatList = [...playerList, ...enemyList];
+        this.combatList = playerList;
+
+        if (this.combatToggle == 0) {
+            this.combatToggle = 1;
+            this.turnButton.style.display = '';
+            this.combatButton.innerHTML = "Stop Combat";
+            this.playerDiv.style.display = 'none';
+            this.enemyDiv.style.display = 'none';
+        } else if (this.combatToggle == 1) {
+            this.combatToggle = 0;
+            this.currentTurn = 0;
+            this.turnButton.style.display = 'none';
+            this.combatButton.innerHTML = "Start Combat";
+            this.playerDiv.style.display = '';
+            this.enemyDiv.style.display = '';
+        }
+        displayCombatList();
+    };
+
+    function advanceTurn() {
+        if (this.combatList.length == this.currentTurn + 1) {
+            this.currentTurn = 0;
+        } else {
+            this.currentTurn++;
+        }
+        displayCombatList();
+    };
+
+    function removeCharacterFromList(listName, index) {
+        if (listName == 'player') {
+            this.playerList = this.playerList.filter(function(el) { return el != this.playerList[index];});
+            displayLists();
+        }
+        /*
+        if (listName == 'enemy') {
+            this.enemyList = this.enemyList.filter(function(el) { return el != this.enemyList[index];});
+            displayLists();
+        }
+        */
+        if (listName == 'combat') {
+            this.combatList = this.combatList.filter(function(el) { return el != this.combatList[index];});
+            if(combatList.length < 1 || combatList == undefined){
+                toggleCombat();
+            }
+            displayCombatList();
+        }
+    };
+
+    displayLists();
 </script>
